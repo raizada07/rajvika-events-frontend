@@ -1,102 +1,109 @@
-import Image from "next/image";
+import { fetchAPI } from '../lib/api';
+import Image from 'next/image';
 
-export default function Home() {
+interface Event {
+  id: number;
+  attributes: {
+    Title: string;
+    Description: string;
+    Date: string;
+    Location: string;
+    MainImage: {
+      data: {
+        attributes: {
+          url: string;
+          alternativeText: string;
+        };
+      };
+    };
+  };
+}
+
+export default async function Home() {
+  const eventsData = await fetchAPI("events", { populate: '*' }); // 'populate=*' to get image data
+
+  const events: Event[] = eventsData.data;
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+    <div className="min-h-screen bg-black text-gold-metallic">
+      {/* Hero Section */}
+      <section className="relative h-screen flex items-center justify-center text-center">
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
+          src="/hero-bg.jpg" // Replace with a luxury event image in public folder
+          alt="Luxury Event Background"
+          layout="fill"
+          objectFit="cover"
+          quality={90}
+          className="opacity-50"
         />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        <div className="relative z-10 p-8">
+          <h1 className="text-6xl md:text-8xl font-serif tracking-widest uppercase text-white drop-shadow-lg">
+            RAJVIKA <span className="block text-4xl md:text-6xl mt-4">EVENT PLANNERS</span>
+          </h1>
+          <p className="mt-8 text-xl md:text-2xl font-montserratLight text-pearl-white drop-shadow-md">
+            Where Grandeur Meets Perfection
+          </p>
+          <button className="mt-12 px-8 py-4 bg-gold-metallic text-black font-semibold uppercase tracking-wide text-lg hover:bg-white hover:text-gold-metallic transition duration-300">
+            Request a Consultation
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </section>
+
+      {/* Events Showcase Section */}
+      <section className="py-20 px-8 md:px-20">
+        <h2 className="text-5xl font-serif text-center mb-16 text-gold-metallic uppercase tracking-wide">
+          Our Exclusive Events
+        </h2>
+
+        {events.length === 0 ? (
+          <p className="text-center text-xl text-white">No events planned yet. Stay tuned!</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+            {events.map((event) => (
+              <div key={event.id} className="bg-gray-900 shadow-xl overflow-hidden group">
+                {event.attributes?.MainImage?.data && (
+                  <div className="relative h-72 w-full overflow-hidden">
+                    <Image
+                      src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${event.attributes.MainImage.data.attributes.url}`}
+                      alt={event.attributes.MainImage.data.attributes.alternativeText || event.attributes.Title}
+                      layout="fill"
+                      objectFit="cover"
+                      className="transition-transform duration-500 group-hover:scale-110"
+                    />
+                  </div>
+                )}
+                <div className="p-8">
+                  <h3 className="text-3xl font-serif text-gold-metallic mb-4 uppercase">
+                    {event.attributes?.Title}
+                  </h3>
+                  <p className="text-lg text-white mb-4">
+                    {event.attributes?.Description?.substring(0, 150)}...
+                  </p>
+                  <p className="text-md text-gray-400">
+                    <span className="font-semibold">Date:</span> {new Date(event.attributes?.Date).toLocaleDateString()}
+                  </p>
+                  <p className="text-md text-gray-400">
+                    <span className="font-semibold">Location:</span> {event.attributes?.Location}
+                  </p>
+                  <button className="mt-6 inline-block text-gold-metallic border border-gold-metallic px-6 py-2 hover:bg-gold-metallic hover:text-black transition duration-300">
+                    View Details
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-950 text-white py-12 text-center border-t border-gold-metallic">
+        <p className="text-lg">&copy; {new Date().getFullYear()} Rajvika Event Planners. All Rights Reserved.</p>
+        <div className="mt-4 flex justify-center space-x-6">
+          {/* Add social media icons here */}
+          <a href="#" className="text-gold-metallic hover:text-white transition duration-300">Facebook</a>
+          <a href="#" className="text-gold-metallic hover:text-white transition duration-300">Instagram</a>
+          <a href="#" className="text-gold-metallic hover:text-white transition duration-300">LinkedIn</a>
+        </div>
       </footer>
     </div>
   );
